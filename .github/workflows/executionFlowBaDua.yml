@@ -1,4 +1,4 @@
-name: ISW2 Testing BookKeeper Ba-Dua
+name: ISW2 Testing Avro Ba-Dua
 on:
   push:
     branches:

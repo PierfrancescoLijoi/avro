@@ -1,4 +1,4 @@
-name: ISW2 Testing BookKeeper JaCoCo
+name: ISW2 Testing Avro JaCoCo
 on:
   push:
     branches:

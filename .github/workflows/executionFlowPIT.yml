@@ -1,4 +1,4 @@
-name: ISW2 Testing BookKeeper PIT
+name: ISW2 Testing Avro PIT
 on:
   push:
     branches:
