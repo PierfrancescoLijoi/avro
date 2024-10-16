@@ -19,33 +19,28 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <artifactId>avro-parent</artifactId>
     <groupId>org.apache.avro</groupId>
     <version>1.12.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-
   <artifactId>avro</artifactId>
-
   <name>Apache Avro</name>
   <url>https://avro.apache.org</url>
   <description>Avro core components</description>
   <packaging>bundle</packaging>
-
   <properties>
     <main.basedir>${project.parent.parent.basedir}</main.basedir>
     <osgi.import>
-      !org.apache.avro*,
-      com.fasterxml.jackson*,
-      org.xerial.snappy;resolution:=optional,
-      sun.misc;resolution:=optional,
-      *
+      !org.apache.avro*, com.fasterxml.jackson*, org.xerial.snappy;resolution:=optional, sun.misc;resolution:=optional, *
     </osgi.import>
     <osgi.export>org.apache.avro*;version="${project.version}"</osgi.export>
-  </properties>
+    <!-- JACOCO -->
+    <sonar.coverage.jacoco.xmlReportPaths>../tests/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
 
+  </properties>
   <build>
     <resources>
       <resource>
@@ -68,7 +63,6 @@
         <targetPath>share/</targetPath>
       </testResource>
     </testResources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -81,7 +75,6 @@
           </archive>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -115,7 +108,35 @@
           </execution>
         </executions>
       </plugin>
-
+      <!-- JACOCO-->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.8</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>
+              <formats>
+                <format>HTML</format>
+                <format>CSV</format>
+                <format>XML</format>
+              </formats>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- JACOCO-->
       <!-- Always run integration tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -133,7 +154,9 @@
           <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
           <settingsFile>./src/it/settings.xml</settingsFile>
           <environmentVariables>
-            <!-- Some tests must be disabled when running within the invoker plugin context -->
+            <!--
+             Some tests must be disabled when running within the invoker plugin context
+            -->
             <WithinInvokerPlugin>true</WithinInvokerPlugin>
           </environmentVariables>
           <goals>
@@ -141,7 +164,6 @@
             <goal>test</goal>
           </goals>
         </configuration>
-
         <executions>
           <execution>
             <id>Populate the local repo for integration tests</id>
@@ -149,7 +171,6 @@
               <goal>install</goal>
             </goals>
           </execution>
-
           <execution>
             <id>Run all tests under Java 8</id>
             <goals>
@@ -158,8 +179,12 @@
             <configuration>
               <filterProperties>
                 <integrationTestingJDK>8</integrationTestingJDK>
-                <!-- Mockito 5 (used in all other cases) requires Java 11 -->
-                <!-- This is the last version that still runs on Java 8 -->
+                <!--
+                 Mockito 5 (used in all other cases) requires Java 11
+                -->
+                <!--
+                 This is the last version that still runs on Java 8
+                -->
                 <mockito.version>4.11.0</mockito.version>
               </filterProperties>
               <properties>
@@ -169,7 +194,6 @@
               <cloneProjectsTo>${project.build.directory}/it-jdk-8</cloneProjectsTo>
             </configuration>
           </execution>
-
           <execution>
             <id>Run all tests under Java 11</id>
             <goals>
@@ -185,7 +209,6 @@
               <cloneProjectsTo>${project.build.directory}/it-jdk-11</cloneProjectsTo>
             </configuration>
           </execution>
-
           <execution>
             <id>Run all tests under Java 17</id>
             <goals>
@@ -201,7 +224,6 @@
               <cloneProjectsTo>${project.build.directory}/it-jdk-17</cloneProjectsTo>
             </configuration>
           </execution>
-
           <execution>
             <id>Run all tests under Java 21</id>
             <goals>
@@ -219,9 +241,239 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
+
+  <profiles>
+
+    <!-- Pit profile -->
+    <profile>
+      <id>Pitest</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>LATEST</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>mutationCoverage</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <threads>4</threads>
+              <targetClasses>
+                <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
+                <param>org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger</param>
+              </targetClasses>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>vertx-http-server</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.bookkeeper.http</groupId>
+          <artifactId>vertx-http-server</artifactId>
+          <version>${project.parent.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>tls-certs</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>Generate Self-Signed Certificates</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <workingDirectory>${basedir}/src/test/resources</workingDirectory>
+                  <executable>${basedir}/src/test/resources/generateKeysAndCerts.sh</executable>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- test profiles for Avro -->
+    <profile>
+      <id>skipAvroTests</id> <!-- Cambia l'ID per riflettere Avro -->
+      <activation>
+        <property>
+          <name>skipAvroTests</name> <!-- Cambia il nome della proprietà per Avro -->
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skipTests>true</skipTests> <!-- Indica di saltare i test -->
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+
+
+    <!-- BADUA PROFILE -->
+    <profile>
+      <id>BaDua</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+
+      <properties>
+        <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
+      </properties>
+      <!-- Needed for generate the report -->
+      <dependencies>
+        <dependency>
+          <groupId>br.usp.each.saeg</groupId>
+          <artifactId>ba-dua-cli</artifactId>
+          <version>${ba-dua.version}</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+
+          <!-- Copy ba-dua-agent-rt from .m2 directory to target/dependency -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>br.usp.each.saeg</groupId>
+                      <artifactId>ba-dua-agent-rt</artifactId>
+                      <classifier>all</classifier>
+                      <version>${ba-dua.version}</version>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Execute tests -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>
+                -javaagent:target/dependency/ba-dua-agent-rt-0.6.0-all.jar
+                -Doutput.file=target/badua.ser
+              </argLine>
+            </configuration>
+          </plugin>
+
+          <!-- Generate report in xml format -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>verify</phase>
+                <configuration>
+                  <mainClass>br.usp.each.saeg.badua.cli.Report</mainClass>
+                  <arguments>
+                    <argument>-input</argument>
+                    <argument>${project.build.directory}/badua.ser</argument>
+                    <argument>-classes</argument>
+                    <argument>${project.build.outputDirectory}</argument>
+                    <argument>-show-classes</argument>
+                    <argument>-show-methods</argument>
+                    <argument>-xml</argument>
+                    <argument>${project.build.directory}/badua.xml</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- JaCoCo profile -->
+    <profile>
+      <id>JaCoCo-coverage</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>!skipJaCoCoCoverage</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>jdk.internal.reflect.*</exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <formats>
+                    <format>HTML</format>
+                  </formats>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+
+
 
 
   <dependencies>
