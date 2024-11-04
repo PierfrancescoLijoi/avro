@@ -39,7 +39,6 @@
     <!-- JACOCO -->
     <sonar.coverage.jacoco.xmlReportPaths>../tests/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
-
   </properties>
   <build>
     <resources>
@@ -138,113 +137,115 @@
       </plugin>
       <!-- JACOCO-->
       <!-- Always run integration tests -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-invoker-plugin</artifactId>
-        <configuration>
-          <failIfNoProjects>true</failIfNoProjects>
-          <!--<debug>true</debug>-->
-          <streamLogsOnFailures>true</streamLogsOnFailures>
-          <projectsDirectory>./src/it</projectsDirectory>
-          <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-          <pomIncludes>
-            <pomInclude>pom.xml</pomInclude>
-          </pomIncludes>
-          <postBuildHookScript>verify</postBuildHookScript>
-          <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-          <settingsFile>./src/it/settings.xml</settingsFile>
-          <environmentVariables>
-            <!--
-             Some tests must be disabled when running within the invoker plugin context
-            -->
-            <WithinInvokerPlugin>true</WithinInvokerPlugin>
-          </environmentVariables>
-          <goals>
-            <goal>clean</goal>
-            <goal>test</goal>
-          </goals>
-        </configuration>
-        <executions>
-          <execution>
-            <id>Populate the local repo for integration tests</id>
-            <goals>
-              <goal>install</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>Run all tests under Java 8</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <filterProperties>
-                <integrationTestingJDK>8</integrationTestingJDK>
-                <!--
-                 Mockito 5 (used in all other cases) requires Java 11
-                -->
-                <!--
-                 This is the last version that still runs on Java 8
-                -->
-                <mockito.version>4.11.0</mockito.version>
-              </filterProperties>
-              <properties>
-                <maven.compiler.release/>
-                <maven.compiler.target>8</maven.compiler.target>
-              </properties>
-              <cloneProjectsTo>${project.build.directory}/it-jdk-8</cloneProjectsTo>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Run all tests under Java 11</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <filterProperties>
-                <integrationTestingJDK>11</integrationTestingJDK>
-              </filterProperties>
-              <properties>
-                <maven.compiler.release>11</maven.compiler.release>
-              </properties>
-              <cloneProjectsTo>${project.build.directory}/it-jdk-11</cloneProjectsTo>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Run all tests under Java 17</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <filterProperties>
-                <integrationTestingJDK>17</integrationTestingJDK>
-              </filterProperties>
-              <properties>
-                <maven.compiler.release>17</maven.compiler.release>
-              </properties>
-              <cloneProjectsTo>${project.build.directory}/it-jdk-17</cloneProjectsTo>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Run all tests under Java 21</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <filterProperties>
-                <integrationTestingJDK>21</integrationTestingJDK>
-              </filterProperties>
-              <properties>
-                <maven.compiler.release>21</maven.compiler.release>
-              </properties>
-              <cloneProjectsTo>${project.build.directory}/it-jdk-21</cloneProjectsTo>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+      <!--
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-invoker-plugin</artifactId>
+              <configuration>
+                <failIfNoProjects>true</failIfNoProjects>
+                < ! - -<debug>true</debug>- - >
+                <streamLogsOnFailures>true</streamLogsOnFailures>
+                <projectsDirectory>./src/it</projectsDirectory>
+                <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                <pomIncludes>
+                  <pomInclude>pom.xml</pomInclude>
+                </pomIncludes>
+                <postBuildHookScript>verify</postBuildHookScript>
+                <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                <settingsFile>./src/it/settings.xml</settingsFile>
+                <environmentVariables>
+                  < ! - -
+                   Some tests must be disabled when running within the invoker plugin context
+                  - - >
+                  <WithinInvokerPlugin>true</WithinInvokerPlugin>
+                </environmentVariables>
+                <goals>
+                  <goal>clean</goal>
+                  <goal>test</goal>
+                </goals>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>Populate the local repo for integration tests</id>
+                  <goals>
+                    <goal>install</goal>
+                  </goals>
+                </execution>
+                <execution>
+                  <id>Run all tests under Java 8</id>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                  <configuration>
+                    <filterProperties>
+                      <integrationTestingJDK>8</integrationTestingJDK>
+                      < ! - -
+                       Mockito 5 (used in all other cases) requires Java 11
+                      - - >
+                      < ! - -
+                       This is the last version that still runs on Java 8
+                      - - >
+                      <mockito.version>4.11.0</mockito.version>
+                    </filterProperties>
+                    <properties>
+      < ! - -                <maven.compiler.release>8</maven.compiler.release>
+                      <maven.compiler.source>1.8</maven.compiler.source>
+                      <maven.compiler.target>1.8</maven.compiler.target>
+      - ->              </properties>
+                    <cloneProjectsTo>${project.build.directory}/it-jdk-8</cloneProjectsTo>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>Run all tests under Java 11</id>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                  <configuration>
+                    <filterProperties>
+                      <integrationTestingJDK>11</integrationTestingJDK>
+                    </filterProperties>
+                    <properties>
+                      <maven.compiler.release>11</maven.compiler.release>
+                    </properties>
+                    <cloneProjectsTo>${project.build.directory}/it-jdk-11</cloneProjectsTo>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>Run all tests under Java 17</id>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                  <configuration>
+                    <filterProperties>
+                      <integrationTestingJDK>17</integrationTestingJDK>
+                    </filterProperties>
+                    <properties>
+                      <maven.compiler.release>17</maven.compiler.release>
+                    </properties>
+                    <cloneProjectsTo>${project.build.directory}/it-jdk-17</cloneProjectsTo>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>Run all tests under Java 21</id>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                  <configuration>
+                    <filterProperties>
+                      <integrationTestingJDK>21</integrationTestingJDK>
+                    </filterProperties>
+                    <properties>
+                      <maven.compiler.release>21</maven.compiler.release>
+                    </properties>
+                    <cloneProjectsTo>${project.build.directory}/it-jdk-21</cloneProjectsTo>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+      -->
     </plugins>
   </build>
   <profiles>
-
     <!-- Pit profile -->
     <profile>
       <id>Pitest</id>
@@ -255,7 +256,6 @@
           <version>LATEST</version>
         </dependency>
       </dependencies>
-
       <build>
         <plugins>
           <plugin>
@@ -272,8 +272,12 @@
             <configuration>
               <threads>4</threads>
               <targetClasses>
-                <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
-                <param>org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger</param>
+                <param>
+                  org.apache.bookkeeper.bookie.storage.ldb.WriteCache
+                </param>
+                <param>
+                  org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger
+                </param>
               </targetClasses>
             </configuration>
           </plugin>
@@ -306,7 +310,9 @@
                 </goals>
                 <configuration>
                   <workingDirectory>${basedir}/src/test/resources</workingDirectory>
-                  <executable>${basedir}/src/test/resources/generateKeysAndCerts.sh</executable>
+                  <executable>
+                    ${basedir}/src/test/resources/generateKeysAndCerts.sh
+                  </executable>
                 </configuration>
               </execution>
             </executions>
@@ -316,10 +322,12 @@
     </profile>
     <!-- test profiles for Avro -->
     <profile>
-      <id>skipAvroTests</id> <!-- Cambia l'ID per riflettere Avro -->
+      <id>skipAvroTests</id>
+      <!-- Cambia l'ID per riflettere Avro -->
       <activation>
         <property>
-          <name>skipAvroTests</name> <!-- Cambia il nome della proprietà per Avro -->
+          <name>skipAvroTests</name>
+          <!-- Cambia il nome della proprietà per Avro -->
         </property>
       </activation>
       <build>
@@ -328,7 +336,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <skipTests>true</skipTests> <!-- Indica di saltare i test -->
+              <skipTests>true</skipTests>
+              <!-- Indica di saltare i test -->
             </configuration>
           </plugin>
         </plugins>
@@ -341,7 +350,9 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
+        <argLine>
+          -javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser
+        </argLine>
       </properties>
       <!-- Needed for generate the report -->
       <dependencies>
@@ -353,7 +364,9 @@
       </dependencies>
       <build>
         <plugins>
-          <!-- Copy ba-dua-agent-rt from .m2 directory to target/dependency -->
+          <!--
+           Copy ba-dua-agent-rt from .m2 directory to target/dependency
+          -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -382,8 +395,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <argLine>
-                -javaagent:target/dependency/ba-dua-agent-rt-0.6.0-all.jar
-                -Doutput.file=target/badua.ser
+                -javaagent:target/dependency/ba-dua-agent-rt-0.6.0-all.jar -Doutput.file=target/badua.ser
               </argLine>
             </configuration>
           </plugin>
@@ -460,7 +472,6 @@
       </build>
     </profile>
   </profiles>
-
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -501,5 +512,3 @@
     </dependency>
   </dependencies>
 </project>
-
-

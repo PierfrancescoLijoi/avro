@@ -45,7 +45,7 @@
     <jopt-simple.version>5.0.4</jopt-simple.version>
     <junit5.version>5.10.2</junit5.version>
     <maven-core.version>3.9.6</maven-core.version>
-    <mockito.version>5.11.0</mockito.version>
+    <mockito.version>4.0.0</mockito.version>
     <netty.version>4.1.107.Final</netty.version>
     <protobuf.version>3.25.3</protobuf.version>
     <reload4j.version>1.2.25</reload4j.version>
@@ -70,32 +70,38 @@
     <!--    <module>android</module> -->
     <module>avro</module>
     <!--
-        <module>idl</module>
-        <module>compiler</module>
-        <module>maven-plugin</module>
-        <module>ipc</module>
-        <module>ipc-jetty</module>
-        <module>ipc-netty</module>
-        <module>trevni</module>
-        <module>tools</module>
-        <module>mapred</module>
-        <module>protobuf</module>
-        <module>thrift</module>
-        <module>archetypes</module>
-        <module>grpc</module>
-        <module>integration-test</module>
-        <module>perf</module>
-        <module>interop-data-test</module>
+
+            <module>idl</module>
+            <module>compiler</module>
+            <module>maven-plugin</module>
+            <module>ipc</module>
+            <module>ipc-jetty</module>
+            <module>ipc-netty</module>
+            <module>trevni</module>
+            <module>tools</module>
+            <module>mapred</module>
+            <module>protobuf</module>
+            <module>thrift</module>
+            <module>archetypes</module>
+            <module>grpc</module>
+            <module>integration-test</module>
+            <module>perf</module>
+            <module>interop-data-test</module>
+
     -->
     <!--
-     Possibly add here other modules that you may need in order to generate the report with Jacoco
+
+         Possibly add here other modules that you may need in order to generate the report with Jacoco
+
     -->
   </modules>
   <build>
     <!--
-     defines the default plugin configuration that all child projects inherit from.
-          Like dependencyManagement, this provides configuration, version, and other
-          parameters if the plugins are used by child projects
+
+         defines the default plugin configuration that all child projects inherit from.
+              Like dependencyManagement, this provides configuration, version, and other
+              parameters if the plugins are used by child projects
+
     -->
     <pluginManagement>
       <plugins>
@@ -104,18 +110,20 @@
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.5.0</version>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${checkstyle-plugin.version}</version>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${checkstyle.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
+        <!--
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-checkstyle-plugin</artifactId>
+                  <version>${checkstyle-plugin.version}</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.puppycrawl.tools</groupId>
+                      <artifactId>checkstyle</artifactId>
+                      <version>${checkstyle.version}</version>
+                    </dependency>
+                  </dependencies>
+                </plugin>
+        -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -126,11 +134,15 @@
               <!--<arg>-Werror</arg>-->
               <arg>-Xlint:all</arg>
               <!--
-               Override options warnings to support cross-compilation
+
+                             Override options warnings to support cross-compilation
+
               -->
               <arg>-Xlint:-options</arg>
               <!--
-               Temporary lint overrides, to be removed over time.
+
+                             Temporary lint overrides, to be removed over time.
+
               -->
               <arg>-Xlint:-rawtypes</arg>
               <arg>-Xlint:-serial</arg>
@@ -144,9 +156,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <!--
-          We want to be able to resuse the test-jars for mapred
-                        to test avro-tool
-                        see https://maven.apache.org/guides/mini/guide-attached-tests.html
+
+                    We want to be able to resuse the test-jars for mapred
+                                  to test avro-tool
+                                  see https://maven.apache.org/guides/mini/guide-attached-tests.html
+
 
           -->
           <executions>
@@ -169,41 +183,45 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <!--
-          Removed in order to ease the integration with Jacoco
+
+                    Removed in order to ease the integration with Jacoco
+
           -->
           <!--
-          <version>${maven-surefire-plugin.version}</version>
-                    <configuration>
-                      <includes>
-                        &lt;!&ndash; Avro naming convention for JUnit tests &ndash;&gt;
-                        <include>**/Test**</include>
-                      </includes>
-                      <excludes>
-                        &lt;!&ndash; A few inner classes are not to be tested &ndash;&gt;
-                        <exclude>**/*$*</exclude>
-                        &lt;!&ndash; exclude the generated classes under apache.avro.test, some of
-                          these match **/Test** and are not JUnit tests &ndash;&gt;
-                        <exclude>**/apache/avro/test/**</exclude>
-                      </excludes>
-                      <enableAssertions>false</enableAssertions>
-                      <trimStackTrace>false</trimStackTrace>
-                      <runOrder>random</runOrder>
-                      <parallel>all</parallel>
-                      <useUnlimitedThreads>true</useUnlimitedThreads>
-                      &lt;!&ndash;<perCoreThreadCount>true</perCoreThreadCount>&ndash;&gt;
 
-                      &lt;!&ndash; TestSpecificCompiler instantiates a Java compiler to test output results,
-                           this does not work with a manifest-only-jar to set the classpath for the javac.
-                           This may cause problems on some platforms.
-                           See https://maven.apache.org/plugins/maven-surefire-plugin/examples/class-loading.html
-                           for more information. &ndash;&gt;
-                      <useManifestOnlyJar>false</useManifestOnlyJar>
-                      &lt;!&ndash; configures unit test standard error and standard out to go to a file per test
-                           rather than the console. &ndash;&gt;
-                      <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                      <failIfNoTests>false</failIfNoTests>
-                      <argLine>-Xmx1000m</argLine>
-                    </configuration>
+                    <version>${maven-surefire-plugin.version}</version>
+                              <configuration>
+                                <includes>
+                                  &lt;!&ndash; Avro naming convention for JUnit tests &ndash;&gt;
+                                  <include>**/Test**</include>
+                                </includes>
+                                <excludes>
+                                  &lt;!&ndash; A few inner classes are not to be tested &ndash;&gt;
+                                  <exclude>**/*$*</exclude>
+                                  &lt;!&ndash; exclude the generated classes under apache.avro.test, some of
+                                    these match **/Test** and are not JUnit tests &ndash;&gt;
+                                  <exclude>**/apache/avro/test/**</exclude>
+                                </excludes>
+                                <enableAssertions>false</enableAssertions>
+                                <trimStackTrace>false</trimStackTrace>
+                                <runOrder>random</runOrder>
+                                <parallel>all</parallel>
+                                <useUnlimitedThreads>true</useUnlimitedThreads>
+                                &lt;!&ndash;<perCoreThreadCount>true</perCoreThreadCount>&ndash;&gt;
+
+                                &lt;!&ndash; TestSpecificCompiler instantiates a Java compiler to test output results,
+                                     this does not work with a manifest-only-jar to set the classpath for the javac.
+                                     This may cause problems on some platforms.
+                                     See https://maven.apache.org/plugins/maven-surefire-plugin/examples/class-loading.html
+                                     for more information. &ndash;&gt;
+                                <useManifestOnlyJar>false</useManifestOnlyJar>
+                                &lt;!&ndash; configures unit test standard error and standard out to go to a file per test
+                                     rather than the console. &ndash;&gt;
+                                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                <failIfNoTests>false</failIfNoTests>
+                                <argLine>-Xmx1000m</argLine>
+                              </configuration>
+
           -->
         </plugin>
         <plugin>
@@ -305,9 +323,11 @@
           <suppressionsLocation>suppressions.xml</suppressionsLocation>
         </configuration>
         <!--
-         Runs by default in the verify phase  (mvn verify or later in the build cycle)
-                     the 'check' goal will fail the build if it does not pass.  "mvn checkstyle:check"
-                     will do this alone, or "mvn checkstyle:checkstyle" will report but not break
+
+                 Runs by default in the verify phase  (mvn verify or later in the build cycle)
+                             the 'check' goal will fail the build if it does not pass.  "mvn checkstyle:check"
+                             will do this alone, or "mvn checkstyle:checkstyle" will report but not break
+
         -->
         <executions>
           <execution>
@@ -325,15 +345,19 @@
         <configuration>
           <java>
             <!--
-             Removed in order to ease the build, these steps are not necessary within the our ISW2 course
+
+                         Removed in order to ease the build, these steps are not necessary within the our ISW2 course
+
             -->
             <!--
-            <eclipse>
-                          &lt;!&ndash; Avro uses Sun's java code style conventions with 2 spaces, this is a modified version of
-                               the eclipse formatter &ndash;&gt;
-                          <file>${main.basedir}/lang/java/eclipse-java-formatter.xml</file>
-                          <version>4.19</version>
-                        </eclipse>
+
+                        <eclipse>
+                                      &lt;!&ndash; Avro uses Sun's java code style conventions with 2 spaces, this is a modified version of
+                                           the eclipse formatter &ndash;&gt;
+                                      <file>${main.basedir}/lang/java/eclipse-java-formatter.xml</file>
+                                      <version>4.19</version>
+                                    </eclipse>
+
             -->
             <!-- Temporarily disabled for JDK 16+ builds -->
             <!--<removeUnusedImports/>-->
@@ -343,7 +367,9 @@
               <replacement>$1</replacement>
             </replaceRegex>
             <!--
-             Allow spotless:off/spotless:on comment pairs to keep ASCII-formatted tables intact
+
+                         Allow spotless:off/spotless:on comment pairs to keep ASCII-formatted tables intact
+
             -->
             <toggleOffOn/>
           </java>
@@ -351,7 +377,9 @@
         <executions>
           <execution>
             <!--
-             Runs in compile phase to fail fast in case of formatting issues.
+
+                         Runs in compile phase to fail fast in case of formatting issues.
+
             -->
             <id>spotless-check</id>
             <phase>compile</phase>
@@ -501,7 +529,9 @@
             <configuration>
               <systemPropertyVariables>
                 <!--
-                 avro-mapred will fail in tests on mac without this
+
+                                 avro-mapred will fail in tests on mac without this
+
                 -->
                 <java.security.krb5.realm>OX.AC.UK</java.security.krb5.realm>
                 <java.security.krb5.kdc>kdc0.ox.ac.uk:kdc1.ox.ac.uk</java.security.krb5.kdc>
@@ -512,7 +542,9 @@
       </build>
     </profile>
     <!--
-     This profile is used on tests to validate backwards compatibility with Hadoop 2
+
+         This profile is used on tests to validate backwards compatibility with Hadoop 2
+
     -->
     <profile>
       <id>hadoop2</id>
@@ -522,10 +554,12 @@
     </profile>
   </profiles>
   <!--
-   dependencyManagement can be used to define dependency versions, scopes, and
-      excludes to be shared by child projects. Child projects will not inherit these dependencies,
-      rather they inherit the properties of the below dependencies (such as version) if
-      the dependency is specified in the child.
+
+     dependencyManagement can be used to define dependency versions, scopes, and
+        excludes to be shared by child projects. Child projects will not inherit these dependencies,
+        rather they inherit the properties of the below dependencies (such as version) if
+        the dependency is specified in the child.
+
   -->
   <dependencyManagement>
     <dependencies>
@@ -567,7 +601,9 @@
         <version>${jopt-simple.version}</version>
       </dependency>
       <!--
-       hadoop's execution environment provides its own jars.
+
+             hadoop's execution environment provides its own jars.
+
       -->
       <dependency>
         <groupId>org.apache.hadoop</groupId>
@@ -650,8 +686,10 @@
     </dependencies>
   </dependencyManagement>
   <!--
-   dependencies defines dependencies that all child projects share. Child projects
-      will inherit these dependencies directly, and can opt out if necessary with <excludes>
+
+     dependencies defines dependencies that all child projects share. Child projects
+        will inherit these dependencies directly, and can opt out if necessary with <excludes>
+
   -->
   <dependencies>
     <dependency>

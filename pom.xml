@@ -31,15 +31,20 @@
   <url>https://avro.apache.org</url>
   <description>Avro toplevel pom</description>
   <!--
-   This project is used for top level build tasks and artifact copying.
-         The RAT task is run to validate licenses.  The Enforcer plugin is used
-         to validate that java projects are the correct version.
-         Java artifacts are copied to the final build destination with a custom profile.
+
+     This project is used for top level build tasks and artifact copying.
+           The RAT task is run to validate licenses.  The Enforcer plugin is used
+           to validate that java projects are the correct version.
+           Java artifacts are copied to the final build destination with a custom profile.
+
 
   -->
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.release>8</maven.compiler.release>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <!--
+        <maven.compiler.release>8</maven.compiler.release>
+    -->
     <main.basedir>${project.basedir}</main.basedir>
     <avro.distDir>dist</avro.distDir>
     <avro.docDir>build/avro-doc-${project.version}/api</avro.docDir>
@@ -59,10 +64,12 @@
     <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
     <maven-toolchains-plugin.version>3.1.0</maven-toolchains-plugin.version>
     <plugin-tools-javadoc.version>3.5.2</plugin-tools-javadoc.version>
-    <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>2.30.0</spotless-maven-plugin.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <!--
-     Pin output timestamp to make the Java build reproducible
+
+         Pin output timestamp to make the Java build reproducible
+
     -->
     <project.build.outputTimestamp>10</project.build.outputTimestamp>
   </properties>
@@ -173,7 +180,9 @@
     </pluginManagement>
     <plugins>
       <!--
-       By trying to activate all toolchains referenced in this project we get a fail-fast if any of them is missing.
+
+             By trying to activate all toolchains referenced in this project we get a fail-fast if any of them is missing.
+
       -->
     </plugins>
   </build>
@@ -181,7 +190,9 @@
     <profile>
       <id>dist</id>
       <!--
-       Profile for generating all maven artifacts and documentation.
+
+             Profile for generating all maven artifacts and documentation.
+
       -->
       <build>
         <plugins>
@@ -191,7 +202,9 @@
             <executions>
               <execution>
                 <!--
-                 build javadoc jars per jar for publishing to maven
+
+                                 build javadoc jars per jar for publishing to maven
+
                 -->
                 <id>module-javadocs</id>
                 <phase>package</phase>
@@ -218,7 +231,9 @@
             <executions>
               <execution>
                 <!--
-                 builds source jars and attaches them to the project for publishing
+
+                                 builds source jars and attaches them to the project for publishing
+
                 -->
                 <id>avro-java-sources</id>
                 <phase>package</phase>
@@ -261,7 +276,9 @@
       <id>rat</id>
       <activation>
         <!--
-         set to false by default, it is not required for our activity within the ISW2 course
+
+                 set to false by default, it is not required for our activity within the ISW2 course
+
         -->
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -297,7 +314,9 @@
                 <exclude>doc/node_modules/**</exclude>
                 <exclude>**/.hugo_build.lock</exclude>
                 <!--
-                 build or test files (some are generated files that we commit as-is for testing purposes)
+
+                                 build or test files (some are generated files that we commit as-is for testing purposes)
+
                 -->
                 <exclude>**/*.log</exclude>
                 <exclude>**/*.rej</exclude>
@@ -516,7 +535,9 @@
                 <!-- Other -->
                 <exclude>lang/py/avro/py.typed</exclude>
                 <!--
-                 Included in package but contains no code (see PEP561)
+
+                                 Included in package but contains no code (see PEP561)
+
                 -->
               </excludes>
             </configuration>
@@ -528,26 +549,6 @@
       <id>copy-artifacts</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <configuration>
-              <target name="copy-java-artifacts">
-                <mkdir dir="${avro.distDir}/java"/>
-                <copy todir="${avro.distDir}/java" verbose="true">
-                  <flattenmapper/>
-                  <fileset dir="lang/java/" includes="**/target/*${project.version}*.jar" excludes="**/original-*.jar **/*tests.jar"/>
-                </copy>
-                <mkdir dir="${avro.docDir}"/>
-                <copy todir="${avro.docDir}/java">
-                  <fileset dir="lang/java/target/site/apidocs"/>
-                </copy>
-                <copy todir="build/avro-doc-${project.version}/trevni">
-                  <fileset dir="lang/java/trevni/doc/target/site"/>
-                </copy>
-              </target>
-            </configuration>
-          </plugin>
         </plugins>
       </build>
     </profile>
