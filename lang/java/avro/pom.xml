@@ -27,11 +27,13 @@
   </parent>
   <artifactId>avro</artifactId>
   <name>Apache Avro</name>
+
   <url>https://avro.apache.org</url>
   <description>Avro core components</description>
   <packaging>bundle</packaging>
   <properties>
     <main.basedir>${project.parent.parent.basedir}</main.basedir>
+    <ba-dua.version>0.6.0</ba-dua.version>
     <osgi.import>
       !org.apache.avro*, com.fasterxml.jackson*, org.xerial.snappy;resolution:=optional, sun.misc;resolution:=optional, *
     </osgi.import>
@@ -348,10 +350,9 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <argLine>
-          -javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser
-        </argLine>
+        <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
       </properties>
+
       <!-- Needed for generate the report -->
       <dependencies>
         <dependency>
