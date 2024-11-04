@@ -272,13 +272,11 @@
             <configuration>
               <threads>4</threads>
               <targetClasses>
-                <param>
-                  org.apache.bookkeeper.bookie.storage.ldb.WriteCache
-                </param>
-                <param>
-                  org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger
-                </param>
+                <param> <!-- classe da testare --> </param>
               </targetClasses>
+              <targetTests>
+                <param> <!-- test da coprire to be tested --> </param>
+              </targetTests>
             </configuration>
           </plugin>
         </plugins>
