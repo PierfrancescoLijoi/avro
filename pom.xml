@@ -66,6 +66,7 @@
     <plugin-tools-javadoc.version>3.5.2</plugin-tools-javadoc.version>
     <spotless-maven-plugin.version>2.30.0</spotless-maven-plugin.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0-M6</maven-failsafe-plugin.version>
     <!--
 
          Pin output timestamp to make the Java build reproducible
@@ -176,6 +177,19 @@
           <artifactId>maven-toolchains-plugin</artifactId>
           <version>${maven-toolchains-plugin.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -222,6 +236,19 @@
                 <configuration>
                   <overview>avro/src/main/java/overview.html</overview>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>${maven.failsafe.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
