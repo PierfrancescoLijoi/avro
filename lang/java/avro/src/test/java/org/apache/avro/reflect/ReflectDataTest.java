@@ -1,15 +1,21 @@
 package org.apache.avro.reflect;
 
 import org.apache.avro.Schema;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
+@RunWith(Parameterized.class)
 public class ReflectDataTest {
 
   private Type type;
@@ -17,32 +23,43 @@ public class ReflectDataTest {
   private Schema expectedSchema;
   private boolean exceptionExpected;
 
-
   public enum ParamType {
     NULL, VALID, INVALID
   }
-
 
   public enum NamesType {
     NULL, EMPTY, VALID, INVALID
   }
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-  public static Stream<Object[]> data() {
-    return Stream.of(
-        new Object[]{ParamType.NULL, NamesType.NULL},
-        new Object[]{ParamType.VALID, NamesType.NULL},
-        new Object[]{ParamType.VALID, NamesType.EMPTY},
-        new Object[]{ParamType.VALID, NamesType.VALID},
-        new Object[]{ParamType.INVALID, NamesType.INVALID}
-    );
+  private ParamType paramType;
+  private NamesType namesType;
+
+  // Constructor to receive parameters
+  public ReflectDataTest(ParamType paramType, NamesType namesType) {
+    this.paramType = paramType;
+    this.namesType = namesType;
   }
 
+  // Parameterized data
+  @Parameters
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        { ParamType.NULL, NamesType.NULL },
+        { ParamType.VALID, NamesType.NULL },
+        { ParamType.VALID, NamesType.EMPTY },
+        { ParamType.VALID, NamesType.VALID },
+        { ParamType.INVALID, NamesType.INVALID }
+    });
+  }
 
-  private void configure(ParamType paramType, NamesType namesType) {
+  // Configuring test parameters
+  private void configure() {
     this.exceptionExpected = false;
 
-
+    // Configure names map based on NamesType
     switch (namesType) {
     case NULL:
       this.names = null;
@@ -61,7 +78,7 @@ public class ReflectDataTest {
       break;
     }
 
-
+    // Configure type based on ParamType
     switch (paramType) {
     case NULL:
       this.type = null;
@@ -78,34 +95,39 @@ public class ReflectDataTest {
     }
   }
 
-  @ParameterizedTest
-  @MethodSource("data")
-  public void createSchemaTest(ParamType paramType, NamesType namesType) {
-    configure(paramType, namesType);
+  @Test
+  public void createSchemaTest() {
+    configure();
+
+    if (exceptionExpected) {
+      thrown.expect(Exception.class);
+    }
 
     try {
       ReflectData reflectData = new ReflectData();
       Schema actual = reflectData.createSchema(this.type, this.names);
-      if (this.names != null) {
 
+      // Verify names map
+      if (this.names != null) {
         if (this.names.isEmpty()) {
-          Assertions.assertEquals(0, this.names.size(), "Names map should be empty.");
+          Assert.assertEquals("La mappa dei nomi dovrebbe essere vuota.", 0, this.names.size());
         } else {
-          Assertions.assertTrue(this.names.size() > 0, "Names map should have at least one entry.");
+          Assert.assertTrue("La mappa dei nomi dovrebbe avere almeno una voce.", this.names.size() > 0);
         }
       }
 
+      // Fail if an exception was expected but not thrown
       if (this.exceptionExpected) {
-        Assertions.fail("Expected exception was not thrown");
+        Assert.fail("Ci si aspettava un'eccezione, ma non è stata lanciata.");
       }
 
-
-      Assertions.assertEquals(this.expectedSchema, actual);
+      // Verify the generated schema
+      Assert.assertEquals(this.expectedSchema, actual);
 
     } catch (Exception e) {
-
+      // Fail if an exception was not expected
       if (!this.exceptionExpected) {
-        Assertions.fail("Unexpected exception: " + e);
+        Assert.fail("Eccezione imprevista: " + e);
       }
     }
   }
