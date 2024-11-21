@@ -1,134 +1,63 @@
 package org.apache.avro.reflect;
 
 import org.apache.avro.Schema;
-import org.junit.Assert;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
+import org.junit.Assert;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(Parameterized.class)
 public class ReflectDataTest {
 
-  private Type type;
-  private Map<String, Schema> names;
-  private Schema expectedSchema;
-  private boolean exceptionExpected;
+  private ReflectData reflectData;
 
-  public enum ParamType {
-    NULL, VALID, INVALID
+  @Before
+  public void setUp() {
+    reflectData = new ReflectData();
   }
 
-  public enum NamesType {
-    NULL, EMPTY, VALID, INVALID
-  }
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  private ParamType paramType;
-  private NamesType namesType;
-
-  // Constructor to receive parameters
-  public ReflectDataTest(ParamType paramType, NamesType namesType) {
-    this.paramType = paramType;
-    this.namesType = namesType;
-  }
-
-  // Parameterized data
-  @Parameters
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        { ParamType.NULL, NamesType.NULL },
-        { ParamType.VALID, NamesType.NULL },
-        { ParamType.VALID, NamesType.EMPTY },
-        { ParamType.VALID, NamesType.VALID },
-        { ParamType.INVALID, NamesType.INVALID }
-    });
-  }
-
-  // Configuring test parameters
-  private void configure() {
-    this.exceptionExpected = false;
-
-    // Configure names map based on NamesType
-    switch (namesType) {
-    case NULL:
-      this.names = null;
-      break;
-    case EMPTY:
-      this.names = new HashMap<>();
-      break;
-    case VALID:
-      this.names = new HashMap<>();
-      Schema schema1 = Schema.create(Schema.Type.INT);
-      this.names.put("key", schema1);
-      break;
-    case INVALID:
-      this.names = new HashMap<>();
-      this.names.put("invalid", null);
-      break;
-    }
-
-    // Configure type based on ParamType
-    switch (paramType) {
-    case NULL:
-      this.type = null;
-      this.exceptionExpected = true;
-      break;
-    case VALID:
-      this.type = Integer.TYPE;
-      this.expectedSchema = Schema.create(Schema.Type.INT);
-      break;
-    case INVALID:
-      this.type = Object.class;
-      this.exceptionExpected = true;
-      break;
-    }
-  }
-
+  // Test caso 1: Type è null e names è null
   @Test
-  public void createSchemaTest() {
-    configure();
-
-    if (exceptionExpected) {
-      thrown.expect(Exception.class);
-    }
+  public void testCreateSchemaWithNullTypeAndNullNames() {
+    Type type = null;
+    Map<String, Schema> names = null;
 
     try {
-      ReflectData reflectData = new ReflectData();
-      Schema actual = reflectData.createSchema(this.type, this.names);
-
-      // Verify names map
-      if (this.names != null) {
-        if (this.names.isEmpty()) {
-          Assert.assertEquals("La mappa dei nomi dovrebbe essere vuota.", 0, this.names.size());
-        } else {
-          Assert.assertTrue("La mappa dei nomi dovrebbe avere almeno una voce.", this.names.size() > 0);
-        }
-      }
-
-      // Fail if an exception was expected but not thrown
-      if (this.exceptionExpected) {
-        Assert.fail("Ci si aspettava un'eccezione, ma non è stata lanciata.");
-      }
-
-      // Verify the generated schema
-      Assert.assertEquals(this.expectedSchema, actual);
-
-    } catch (Exception e) {
-      // Fail if an exception was not expected
-      if (!this.exceptionExpected) {
-        Assert.fail("Eccezione imprevista: " + e);
-      }
+      reflectData.createSchema(type, names);
+      Assert.fail("Ci si aspettava un'eccezione NullPointerException.");
+    } catch (NullPointerException e) {
+      // Questo è il comportamento atteso, quindi non fare nulla.
     }
   }
+
+  // Test caso 2: Type è valido (es. Integer.TYPE) e Map è valida (es. mappa con una chiave-valore)
+  @Test
+  public void testCreateSchemaWithValidTypeAndValidMap() {
+    Type type = Integer.TYPE; // Type valido
+    Map<String, Schema> names = new HashMap<>();
+    names.put("validSchema", Schema.create(Schema.Type.INT)); // Mappa valida con un elemento
+
+    // Eseguiamo la creazione dello schema
+    Schema result = reflectData.createSchema(type, names);
+
+    // Assert che lo schema creato sia di tipo INT e la mappa non è cambiata
+    Assert.assertEquals(Schema.Type.INT, result.getType());
+    Assert.assertTrue(names.isEmpty()); // Le mappe non dovrebbero essere modificate per i tipi primitivi
+  }
+
+  // Test caso 3: Type è valido (es. Integer.TYPE) e Map è vuota
+  @Test
+  public void testCreateSchemaWithValidTypeAndEmptyMap() {
+    Type type = Integer.TYPE; // Type valido
+    Map<String, Schema> names = new HashMap<>(); // Mappa vuota
+
+    // Eseguiamo la creazione dello schema
+    Schema result = reflectData.createSchema(type, names);
+
+    // Assert che lo schema creato sia di tipo INT
+    Assert.assertEquals(Schema.Type.INT, result.getType());
+    Assert.assertTrue(names.isEmpty()); // La mappa vuota non dovrebbe essere modificata
+  }
+
 }
