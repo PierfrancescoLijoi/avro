@@ -1,4 +1,4 @@
-name: Jacoco-Coverage
+name: JaCoco-Coverage
 on:
   push:
     branches:

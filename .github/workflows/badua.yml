@@ -1,4 +1,4 @@
-name: Badua-Coverage
+name: BaDua
 on:
   push:
     branches:

@@ -48,7 +48,6 @@
     <jackson-bom.version>2.16.2</jackson-bom.version>
     <jetty.version>9.4.54.v20240208</jetty.version>
     <jopt-simple.version>5.0.4</jopt-simple.version>
-    <junit5.version>5.10.2</junit5.version>
     <maven-core.version>3.9.6</maven-core.version>
     <mockito.version>5.11.0</mockito.version>
     <netty.version>4.1.107.Final</netty.version>
@@ -93,6 +92,14 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.5.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.2</version>
+          <configuration>
+            <argLine>--add-opens java.base/jdk.internal.reflect=ALL-UNNAMED</argLine>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -717,12 +724,7 @@
     </dependency>
 
 
-    <!--dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${junit5.version}</version>
-      <scope>test</scope>
-    </dependency-->
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
