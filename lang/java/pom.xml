@@ -548,21 +548,26 @@
     <profile>
       <id>JaCoCo-coverage</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
         <property>
           <name>!skipJaCoCoCoverage</name>
         </property>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <!-- custom -->
+              <argLine>@{argLine}</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>jdk.internal.reflect.*</exclude>
-              </excludes>
-            </configuration>
+            <version>0.8.11</version>
             <executions>
               <execution>
                 <id>prepare-agent</id>
@@ -572,20 +577,17 @@
               </execution>
               <execution>
                 <id>report</id>
+                <phase>verify</phase>
                 <goals>
                   <goal>report</goal>
                 </goals>
-                <configuration>
-                  <formats>
-                    <format>HTML</format>
-                  </formats>
-                </configuration>
               </execution>
             </executions>
           </plugin>
         </plugins>
       </build>
     </profile>
+
 
   </profiles>
 

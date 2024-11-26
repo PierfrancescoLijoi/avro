@@ -7,6 +7,10 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class SchemaCompatibilityTest {
@@ -17,7 +21,7 @@ public class SchemaCompatibilityTest {
   private SchemaCompatibility.SchemaCompatibilityType typeResult;
 
   public enum SchemaWriterType {
-    NULL, INT, STRING, UNION, RECORD
+    NULL, BOOLEAN, INT, LONG, FLOAT, DOUBLE, BYTES, STRING, ARRAY, MAP, FIXED, ENUM, RECORD, UNION
   }
 
   public enum SchemaReaderType {
@@ -29,15 +33,21 @@ public class SchemaCompatibilityTest {
     return Arrays.asList(new Object[][] {
 
         // Combinazioni che testano la compatibilità dei vari tipi di schema
-        // Combinazione 1: Entrambi gli schemi sono nulli - Si attende una AvroRuntimeException
-        { SchemaWriterType.NULL, SchemaReaderType.SAME },
+        { SchemaWriterType.NULL, SchemaReaderType.NULL },
+        { SchemaWriterType.BOOLEAN, SchemaReaderType.NOT_SAME },
         { SchemaWriterType.INT, SchemaReaderType.NOT_SAME },
-
+        { SchemaWriterType.LONG, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.FLOAT, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.DOUBLE, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.BYTES, SchemaReaderType.NOT_SAME },
         { SchemaWriterType.STRING, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.ARRAY, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.MAP, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.FIXED, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.ENUM, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.RECORD, SchemaReaderType.NOT_SAME },
+        { SchemaWriterType.UNION, SchemaReaderType.SAME },
 
-        { SchemaWriterType.UNION, SchemaReaderType.NOT_SAME },
-
-        { SchemaWriterType.UNION, SchemaReaderType.NULL },
 
 
     });
@@ -88,34 +98,116 @@ public class SchemaCompatibilityTest {
         this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
       }
       break;
-    //case FLOAT:
-    //  this.schemaWriter = Schema.create(Schema.Type.FLOAT);
-    //  if (typeReader == SchemaReaderType.SAME) {
-    //    this.schemaReader = Schema.create(Schema.Type.FLOAT);
-    //    this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
-    //  }
-    //  if (typeReader == SchemaReaderType.NOT_SAME) {
-    //    // FLOAT vs DOUBLE deve essere incompatibile
-    //    if (this.schemaReader.getType() == Schema.Type.DOUBLE) {
-    //      this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
-    //    } else {
-    //      this.schemaReader = Schema.create(Schema.Type.STRING); // esempio di incompatibilità
-    //      this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
-    //    }
-    //  }
-    //  break;
-    //case BYTES:
-    //  this.schemaWriter = Schema.create(Schema.Type.BYTES);
-    //  if (typeReader == SchemaReaderType.SAME) {
-    //    this.schemaReader = Schema.create(Schema.Type.BYTES);
-    //    this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
-    //  }
-    //  if (typeReader == SchemaReaderType.NOT_SAME) {
-    //    // Bytes vs String sono incompatibili
-    //    this.schemaReader = Schema.create(Schema.Type.STRING);
-    //    this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
-    //  }
-    //  break;
+    case BOOLEAN:
+      this.schemaWriter = Schema.create(Schema.Type.BOOLEAN);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.create(Schema.Type.BOOLEAN);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.create(Schema.Type.INT);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case LONG:
+      this.schemaWriter = Schema.create(Schema.Type.LONG);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.create(Schema.Type.LONG);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.create(Schema.Type.INT);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case FLOAT:
+      this.schemaWriter = Schema.create(Schema.Type.FLOAT);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.create(Schema.Type.FLOAT);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.create(Schema.Type.STRING);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case DOUBLE:
+      this.schemaWriter = Schema.create(Schema.Type.DOUBLE);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.create(Schema.Type.DOUBLE);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.create(Schema.Type.STRING);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case BYTES:
+      this.schemaWriter = Schema.create(Schema.Type.BYTES);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.create(Schema.Type.BYTES);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.create(Schema.Type.INT);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case ARRAY:
+      this.schemaWriter = Schema.createArray(Schema.create(Schema.Type.INT));
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.createArray(Schema.create(Schema.Type.INT));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.createArray(Schema.create(Schema.Type.STRING));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case MAP:
+      this.schemaWriter = Schema.createMap(Schema.create(Schema.Type.STRING));
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.createMap(Schema.create(Schema.Type.STRING));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.createMap(Schema.create(Schema.Type.INT));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case FIXED:
+      this.schemaWriter = Schema.createFixed("fixed", null, null, 16);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.createFixed("fixed", null, null, 16);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.createFixed("Nofixed", null, null, 32);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case ENUM:
+      this.schemaWriter = Schema.createEnum("EnumName", null, null, Arrays.asList("A", "B", "C"));
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.createEnum("EnumName", null, null, Arrays.asList("A", "B", "C"));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.createEnum("NONEnumName", null, null, Arrays.asList("D", "E", "F"));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
+    case RECORD:
+      this.schemaWriter = Schema.createRecord("RecordName", null, null, false);
+      if (typeReader == SchemaReaderType.SAME) {
+        this.schemaReader = Schema.createRecord("RecordName", null, null, false);
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.COMPATIBLE;
+      }
+      if (typeReader == SchemaReaderType.NOT_SAME) {
+        this.schemaReader = Schema.createArray(Schema.create(Schema.Type.INT));
+        this.typeResult = SchemaCompatibility.SchemaCompatibilityType.INCOMPATIBLE;
+      }
+      break;
     }
     // Debugging: Stampa le informazioni sui tipi di schema
     System.out.println("SchemaWriterType: " + typeWriter);
@@ -146,4 +238,6 @@ public class SchemaCompatibilityTest {
       Assert.assertTrue("Unexpected AssertionError occurred", this.isExceptionExpected);
     }
   }
+
+
 }
