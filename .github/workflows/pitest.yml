@@ -32,6 +32,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PIT_Report
-          path: avro/target
+          path: lang/java/avro/target
           if-no-files-found: error
 
