@@ -1,4 +1,4 @@
-name: DskipUnitTests
+name: FailSafe
 on:
   push:
     branches:
@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run:
-          mvn -DskipUnitTests=true clean verify pl lang/java/avro
+          mvn -DskipUnitTests=true clean verify -pl lang/java/avro
       - name: Upload report
         uses: actions/upload-artifact@v3
         with:
