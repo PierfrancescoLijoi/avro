@@ -281,7 +281,7 @@
             </executions>
           </plugin>
 
-          <!-- Execute tests -->
+           <!--Execute tests -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -292,6 +292,9 @@
               </argLine>
             </configuration>
           </plugin>
+
+
+
 
           <!-- Generate report in xml format -->
           <plugin>
@@ -343,10 +346,10 @@
             <version>${pitest.version}</version>
             <configuration>
               <targetClasses>
-                <!--package-->
+
               </targetClasses>
               <targetTests>
-                <!--classi-->
+
               </targetTests>
               <avoidCallsTo>
                 <avoidCallsTo>org.slf4j</avoidCallsTo>
