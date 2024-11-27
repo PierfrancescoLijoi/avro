@@ -2,9 +2,9 @@ name: BaDua
 on:
   push:
     branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened]
+      - main
+    pull_request:
+      types: [ opened, synchronize, reopened ]
 jobs:
   build:
     name: Build and analyze
