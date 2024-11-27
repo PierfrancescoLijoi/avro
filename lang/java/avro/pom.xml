@@ -47,7 +47,7 @@
 
     <!-- Badua properties -->
     <ba-dua.version>0.6.0</ba-dua.version>
-    <pitest.version>1.14.0</pitest.version>
+    <pitest.version>1.15.0</pitest.version>
   </properties>
 
   <build>
