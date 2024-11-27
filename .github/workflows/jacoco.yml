@@ -40,4 +40,5 @@ jobs:
         with:
           name: Avro_Report
           path: lang/java/tests/target/site/jacoco/
+
           if-no-files-found: error
