@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,8 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
-@RunWith(Parameterized.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ Schema.class })
 public class SchemaCompatibilityLookUpTest {
   private Schema schema;
   private Schema.Field field;
@@ -84,6 +87,7 @@ public class SchemaCompatibilityLookUpTest {
 
         });
   }
+
 
   public void configure(boolean nullable, Schema.Type type, ParamField field) {
     if (nullable) {
