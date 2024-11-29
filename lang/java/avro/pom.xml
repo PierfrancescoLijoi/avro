@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
-
-       https://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
--->
 <project
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
     xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -28,7 +12,6 @@
   </parent>
 
   <artifactId>avro</artifactId>
-
   <name>Apache Avro</name>
   <url>https://avro.apache.org</url>
   <description>Avro core components</description>
@@ -45,7 +28,8 @@
     </osgi.import>
     <osgi.export>org.apache.avro*;version="${project.version}"</osgi.export>
 
-    <!-- Badua properties -->
+    <!-- Dependencies Versions -->
+    <mockito.version>5.11.0</mockito.version>
     <ba-dua.version>0.6.0</ba-dua.version>
     <pitest.version>1.15.0</pitest.version>
   </properties>
@@ -74,6 +58,7 @@
     </testResources>
 
     <plugins>
+      <!-- Maven Jar Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -86,45 +71,25 @@
         </configuration>
       </plugin>
 
+      <!-- Maven Surefire Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <parallel>none</parallel>
+          <argLine>
+            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+            --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+          </argLine>
         </configuration>
-        <executions>
-          <execution>
-            <id>test-with-custom-coders</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <systemPropertyVariables>
-                <org.apache.avro.specific.use_custom_coders>true</org.apache.avro.specific.use_custom_coders>
-              </systemPropertyVariables>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-with-fast-reader</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <systemPropertyVariables>
-                <org.apache.avro.fastread>true</org.apache.avro.fastread>
-              </systemPropertyVariables>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
-
     </plugins>
   </build>
 
-
   <dependencies>
+    <!-- Jackson Dependencies -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
@@ -133,30 +98,36 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
+    <!-- Commons Compress -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
     </dependency>
+    <!-- Snappy -->
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- XZ -->
     <dependency>
       <groupId>org.tukaani</groupId>
       <artifactId>xz</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- Zstd -->
     <dependency>
       <groupId>com.github.luben</groupId>
       <artifactId>zstd-jni</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- Hamcrest -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Mockito -->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -165,172 +136,7 @@
   </dependencies>
 
   <profiles>
-
-    <!-- Ba-dua profile isw2-->
-    <!--profile>
-       <id>BaDua</id>
-       <activation>
-         <activeByDefault>false</activeByDefault>
-       </activation>
-       <properties>
-         <argLine>-javaagent:/target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
-       </properties>
-       <dependencies>
-         <dependency>
-           <groupId>br.usp.each.saeg</groupId>
-           <artifactId>ba-dua-cli</artifactId>
-           <version>${ba-dua.version}</version>
-         </dependency>
-       </dependencies>
-       <build>
-         <plugins>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-dependency-plugin</artifactId>
-             <version>2.10</version>
-             <executions>
-               <execution>
-                 <goals>
-                   <goal>copy</goal>
-                 </goals>
-                 <configuration>
-                   <artifactItems>
-                     <artifactItem>
-                       <groupId>br.usp.each.saeg</groupId>
-                       <artifactId>ba-dua-agent-rt</artifactId>
-                       <classifier>all</classifier>
-                       <version>${ba-dua.version}</version>
-                     </artifactItem>
-                   </artifactItems>
-                 </configuration>
-               </execution>
-             </executions>
-           </plugin>
-           <plugin>
-             <groupId>org.codehaus.mojo</groupId>
-             <artifactId>exec-maven-plugin</artifactId>
-             <version>1.5.0</version>
-             <executions>
-               <execution>
-                 <goals>
-                   <goal>java</goal>
-                 </goals>
-                 <phase>verify</phase>
-                 <configuration>
-                   <mainClass>br.usp.each.saeg.badua.cli.Report</mainClass>
-                   <arguments>
-                     <argument>-input</argument>
-                     <argument>${project.build.directory}/badua.ser</argument>
-                     <argument>-classes</argument>
-                     <argument>${project.build.outputDirectory}</argument>
-                     <argument>-show-classes</argument>
-                     <argument>-show-methods</argument>
-                     <argument>-xml</argument>
-                     <argument>${project.build.directory}/badua.xml</argument>
-                   </arguments>
-                 </configuration>
-               </execution>
-             </executions>
-           </plugin>
-         </plugins>
-       </build>
-     </profile-->
-
-
-    <!-- BADUA PROFILE precedente alla modifica per problema su badua sul test specifico lookup  -->
-    <!--<profile>-->
-    <!--  <id>BaDua</id>-->
-    <!--  <activation>-->
-    <!--    <activeByDefault>false</activeByDefault>-->
-    <!--  </activation>-->
-    <!--  &lt;!&ndash;-->
-    <!--  <properties>-->
-    <!--    <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>-->
-    <!--  </properties> &ndash;&gt;-->
-    <!--  &lt;!&ndash; Needed for generate the report &ndash;&gt;-->
-    <!--  <dependencies>-->
-    <!--    <dependency>-->
-    <!--      <groupId>br.usp.each.saeg</groupId>-->
-    <!--      <artifactId>ba-dua-cli</artifactId>-->
-    <!--      <version>${ba-dua.version}</version>-->
-    <!--    </dependency>-->
-    <!--  </dependencies>-->
-    <!--  <build>-->
-    <!--    <plugins>-->
-
-    <!--      &lt;!&ndash; Copy ba-dua-agent-rt from .m2 directory to target/dependency &ndash;&gt;-->
-    <!--      <plugin>-->
-    <!--        <groupId>org.apache.maven.plugins</groupId>-->
-    <!--        <artifactId>maven-dependency-plugin</artifactId>-->
-    <!--        <version>2.10</version>-->
-    <!--        <executions>-->
-    <!--          <execution>-->
-    <!--            <goals>-->
-    <!--              <goal>copy</goal>-->
-    <!--            </goals>-->
-    <!--            <configuration>-->
-    <!--              <artifactItems>-->
-    <!--                <artifactItem>-->
-    <!--                  <groupId>br.usp.each.saeg</groupId>-->
-    <!--                  <artifactId>ba-dua-agent-rt</artifactId>-->
-    <!--                  <classifier>all</classifier>-->
-    <!--                  <version>${ba-dua.version}</version>-->
-    <!--                </artifactItem>-->
-    <!--              </artifactItems>-->
-    <!--            </configuration>-->
-    <!--          </execution>-->
-    <!--        </executions>-->
-    <!--      </plugin>-->
-
-    <!--       &lt;!&ndash;Execute tests &ndash;&gt;-->
-    <!--      <plugin>-->
-    <!--        <groupId>org.apache.maven.plugins</groupId>-->
-    <!--        <artifactId>maven-surefire-plugin</artifactId>-->
-    <!--        <configuration>-->
-    <!--          <argLine>-->
-    <!--            &#45;&#45;add-opens java.base/java.lang=ALL-UNNAMED-->
-    <!--            &#45;&#45;add-opens java.base/java.util=ALL-UNNAMED-->
-    <!--            &#45;&#45;add-opens java.base/java.util.concurrent=ALL-UNNAMED-->
-    <!--            -javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar-->
-    <!--            -Doutput.file=target/badua.ser-->
-    <!--          </argLine>-->
-    <!--        </configuration>-->
-    <!--      </plugin>-->
-
-
-
-
-    <!--      &lt;!&ndash; Generate report in xml format &ndash;&gt;-->
-    <!--      <plugin>-->
-    <!--        <groupId>org.codehaus.mojo</groupId>-->
-    <!--        <artifactId>exec-maven-plugin</artifactId>-->
-    <!--        <version>1.5.0</version>-->
-    <!--        <executions>-->
-    <!--          <execution>-->
-    <!--            <goals>-->
-    <!--              <goal>java</goal>-->
-    <!--            </goals>-->
-    <!--            <phase>verify</phase>-->
-    <!--            <configuration>-->
-    <!--              <mainClass>br.usp.each.saeg.badua.cli.Report</mainClass>-->
-    <!--              <arguments>-->
-    <!--                <argument>-input</argument>-->
-    <!--                <argument>${project.build.directory}/badua.ser</argument>-->
-    <!--                <argument>-classes</argument>-->
-    <!--                <argument>${project.build.outputDirectory}</argument>-->
-    <!--                <argument>-show-classes</argument>-->
-    <!--                <argument>-show-methods</argument>-->
-    <!--                <argument>-xml</argument>-->
-    <!--                <argument>${project.build.directory}/badua.xml</argument>-->
-    <!--              </arguments>-->
-    <!--            </configuration>-->
-    <!--          </execution>-->
-    <!--        </executions>-->
-    <!--      </plugin>-->
-    <!--    </plugins>-->
-    <!--  </build>-->
-
-    <!--</profile>-->
+    <!-- Ba-Dua Profile -->
     <profile>
       <id>BaDua</id>
       <activation>
@@ -341,10 +147,10 @@
           --add-opens java.base/java.lang=ALL-UNNAMED
           --add-opens java.base/java.util=ALL-UNNAMED
           --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+          --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
           -javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar
           -Doutput.file=target/badua.ser
         </argLine>
-
       </properties>
       <dependencies>
         <dependency>
@@ -378,20 +184,6 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>
-                --add-opens java.base/java.lang=ALL-UNNAMED
-                --add-opens java.base/java.util=ALL-UNNAMED
-                --add-opens java.base/sun.nio.ch=ALL-UNNAMED
-                --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
-                -javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar
-                -Doutput.file=target/badua.ser
-              </argLine>
-            </configuration>
-          </plugin>
-          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.5.0</version>
@@ -421,8 +213,7 @@
       </build>
     </profile>
 
-
-    <!-- PIT profile isw2-->
+    <!-- PIT Profile -->
     <profile>
       <id>Pitest</id>
       <activation>
@@ -465,5 +256,4 @@
       </build>
     </profile>
   </profiles>
-
 </project>
