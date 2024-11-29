@@ -50,6 +50,7 @@
     <jopt-simple.version>5.0.4</jopt-simple.version>
     <maven-core.version>3.9.6</maven-core.version>
     <mockito.version>5.11.0</mockito.version>
+    <powermock.version>2.0.9</powermock.version>
     <netty.version>4.1.107.Final</netty.version>
     <protobuf.version>3.25.3</protobuf.version>
     <reload4j.version>1.2.25</reload4j.version>
@@ -660,6 +661,7 @@
           </exclusion>
         </exclusions>
       </dependency>
+
       <dependency>
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-library</artifactId>
